@@ -287,6 +287,39 @@ resource "aws_s3_bucket" "flowbucket" {
   })
 }
 
+
+resource "aws_s3_bucket" "flowbucket_log_bucket" {
+  bucket = "flowbucket-log-bucket"
+}
+
+resource "aws_s3_bucket_logging" "flowbucket" {
+  bucket = aws_s3_bucket.flowbucket.id
+
+  target_bucket = aws_s3_bucket.flowbucket_log_bucket.id
+  target_prefix = "log/"
+}
+
+
+
+resource "aws_s3_bucket_server_side_encryption_configuration" "flowbucket" {
+  bucket = aws_s3_bucket.flowbucket.bucket
+
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm     = "AES256"
+    }
+  }
+}
+
+
+resource "aws_s3_bucket_versioning" "flowbucket" {
+  bucket = aws_s3_bucket.flowbucket.id
+
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
 output "ec2_public_dns" {
   description = "Web Host Public DNS name"
   value       = aws_instance.web_host.public_dns
